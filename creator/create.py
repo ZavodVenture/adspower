@@ -44,6 +44,13 @@ def worker(index):
     driver.close()
     driver.switch_to.window(driver.window_handles[0])
 
+    try:
+        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '//div[@class="critical-error"]')))
+    except:
+        pass
+    else:
+        driver.refresh()
+
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, '//button[@data-testid="onboarding-import-wallet"]'))).click()
     WebDriverWait(driver, 1)

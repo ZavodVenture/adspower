@@ -98,6 +98,10 @@ def bypass():
         with open(path + 'ext\\19657\\runtime-lavamoat.js', 'w', encoding='utf-8') as file:
             file.write(text)
             file.close()
+        with open(path + 'extension\\19657\\3f78540a9170bc1d87c525f061d1dd0f\\10.26.2_0\\runtime-lavamoat.js', 'w',
+                  encoding='utf-8') as file:
+            file.write(text)
+            file.close()
     except FileNotFoundError:
         try:
             with open(path + 'extension\\19657\\3f78540a9170bc1d87c525f061d1dd0f\\10.26.2_0\\runtime-lavamoat.js', 'w',

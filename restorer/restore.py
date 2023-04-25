@@ -94,9 +94,18 @@ def bypass():
         '} = {"scuttleGlobalThis":true,"scuttleGlobalThisExceptions":["toString","getComputedStyle","addEventListener","removeEventListener","ShadowRoot","HTMLElement","Element","pageXOffset","pageYOffset","visualViewport","Reflect","Set","Object","navigator","harden","console","location","/cdc_[a-zA-Z0-9]+_[a-zA-Z]+/iu","performance","parseFloat","innerWidth","innerHeight","Symbol","Math","DOMRect","Number","Array","crypto","Function","Uint8Array","String","Promise","__SENTRY__","appState","extra","stateHooks","sentryHooks","sentry"]}',
         '} = {"scuttleGlobalThis":false,"scuttleGlobalThisExceptions":[]}')
 
-    with open(path + 'extension\\19657\\3f78540a9170bc1d87c525f061d1dd0f\\10.26.2_0\\runtime-lavamoat.js', 'w', encoding='utf-8') as file:
-        file.write(text)
-        file.close()
+    try:
+        with open(path + 'ext\\19657\\runtime-lavamoat.js', 'w', encoding='utf-8') as file:
+            file.write(text)
+            file.close()
+    except FileNotFoundError:
+        try:
+            with open(path + 'extension\\19657\\3f78540a9170bc1d87c525f061d1dd0f\\10.26.2_0\\runtime-lavamoat.js', 'w',
+                      encoding='utf-8') as file:
+                file.write(text)
+                file.close()
+        except FileNotFoundError:
+            return False
 
     for d in os.listdir(path + 'cache'):
         try:

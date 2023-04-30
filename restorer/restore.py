@@ -45,9 +45,9 @@ def worker(ws_index, metamask_index):
     else:
         driver.refresh()
 
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="onboarding-import-wallet"]'))).click()
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-import-wallet"]'))).click()
     WebDriverWait(driver, 1)
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[@data-testid="metametrics-i-agree"]'))).click()
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="metametrics-i-agree"]'))).click()
 
     WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, 'import-srp__srp-word-0')))
 
@@ -59,15 +59,15 @@ def worker(ws_index, metamask_index):
 
     meta_password = ''.join(random.choice(ascii_letters + digits) for j in range(8))
 
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-new"]'))).send_keys(meta_password)
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located(((By.XPATH, '//input[@data-testid="create-password-confirm"]')))).send_keys(meta_password)
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-terms"]'))).click()
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-new"]'))).send_keys(meta_password)
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located(((By.XPATH, '//input[@data-testid="create-password-confirm"]')))).send_keys(meta_password)
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-terms"]'))).click()
 
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="create-password-import"]'))).click()
+    WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="create-password-import"]'))).click()
 
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-complete-done"]'))).click()
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-next"]'))).click()
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-done"]'))).click()
+    WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-complete-done"]'))).click()
+    WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-next"]'))).click()
+    WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-done"]'))).click()
 
     driver.get('https://www.google.com/')
 

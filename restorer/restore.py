@@ -69,7 +69,7 @@ def worker(ws_index, metamask_index):
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-next"]'))).click()
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-done"]'))).click()
 
-    driver.get('https://www.google.com/')
+    driver.get('about:blank')
 
 
 def bypass():

@@ -52,10 +52,10 @@ def worker(index):
         driver.refresh()
 
     WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, '//button[@data-testid="onboarding-import-wallet"]'))).click()
+        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-import-wallet"]'))).click()
     WebDriverWait(driver, 1)
     WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, '//button[@data-testid="metametrics-i-agree"]'))).click()
+        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="metametrics-i-agree"]'))).click()
 
     WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, 'import-srp__srp-word-0')))
 
@@ -68,23 +68,34 @@ def worker(index):
 
     meta_password = ''.join(random.choice(ascii_letters + digits) for j in range(8))
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-new"]'))).send_keys(
         meta_password)
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 20).until(
         EC.presence_of_element_located(((By.XPATH, '//input[@data-testid="create-password-confirm"]')))).send_keys(
         meta_password)
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-terms"]'))).click()
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="create-password-import"]'))).click()
 
-    WebDriverWait(driver, 10).until(
+    driver.implicitly_wait(5)
+
+    while 1:
+        try:
+            driver.find_element(By.XPATH, '//div[@class="loading-overlay"]')
+        except:
+            break
+        else:
+            sleep(1)
+            continue
+
+    WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-complete-done"]'))).click()
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-next"]'))).click()
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-done"]'))).click()
 
     if discord:

@@ -65,15 +65,15 @@ def worker(ws_index, metamask_index):
 
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="create-password-import"]'))).click()
 
-    driver.implicitly_wait(5)
+    sleep(5)
 
     while 1:
         try:
             driver.find_element(By.XPATH, '//div[@class="loading-overlay"]')
         except:
-            break
+            driver.refresh()
         else:
-            sleep(1)
+            sleep(5)
             continue
 
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-complete-done"]'))).click()

@@ -84,11 +84,12 @@ def worker(index):
 
     while 1:
         try:
+            sleep(5)
             driver.find_element(By.XPATH, '//div[@class="loading-overlay"]')
         except:
             break
         else:
-            sleep(1)
+            driver.refresh()
             continue
 
     WebDriverWait(driver, 20).until(

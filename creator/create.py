@@ -240,7 +240,7 @@ if __name__ == '__main__':
 
     print('Проверка завершена. Создание профилей AdsPower...\n')
 
-    group_name = f'Profiles{offset+1}-{offset+profile_numbers}'
+    group_name = f'Profiles{offset+1}-{offset+profile_numbers}_{config["Settings"]["group_name"]}'
     group_id = 0
 
     try:

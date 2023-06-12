@@ -189,7 +189,7 @@ if __name__ == '__main__':
 
                 offset = 0
                 try:
-                    offset = int(re.findall(r'Profiles(\d*)-\d*', group_name)[0]) - 1
+                    offset = int(re.findall(r'Profiles(\d*)-\d*_.*', group_name)[0]) - 1
                 except Exception as e:
                     print('Не удалось определить номер первого профиля в группе (группа имеет не стандартное название)')
                     init_exit()

@@ -40,9 +40,14 @@ def worker(index):
     service = Service(executable_path=driver_path)
     driver = webdriver.Chrome(service=service, options=options)
 
-    WebDriverWait(driver, 60).until(EC.number_of_windows_to_be(2))
-    driver.close()
+    WebDriverWait(driver, 60).until_not(EC.number_of_windows_to_be(2))
+    sleep(5)
+    windows = driver.window_handles
+    for window in range(len(driver.window_handles) - 1):
+        driver.switch_to.window(windows[i])
+        driver.close()
     driver.switch_to.window(driver.window_handles[0])
+    driver.get('chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html')
 
     try:
         WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '//div[@class="critical-error"]')))
@@ -66,7 +71,7 @@ def worker(index):
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="import-srp-confirm"]'))).click()
 
-    meta_password = ''.join(random.choice(ascii_letters + digits) for j in range(8))
+    meta_password = ''.join(random.choice(ascii_letters + digits) for j in range(8)) if not config['Settings']['password'] else config['Settings']['password']
 
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-new"]'))).send_keys(

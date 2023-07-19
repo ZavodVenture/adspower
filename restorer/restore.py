@@ -113,9 +113,13 @@ def bypass():
     for d in os.listdir(path + 'cache'):
         try:
             rmtree(path + f'cache\\{d}\\Default\Local Extension Settings\\nkbihfbeogaeaoehlefnkodbefgpgknn')
+        except:
+            pass
+
+        try:
             rmtree(path + f'cache\\{d}\\extensionCenter\\07de772c049203839ed54e4156de1a89')
         except:
-            continue
+            pass
 
     return True
 

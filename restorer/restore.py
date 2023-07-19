@@ -88,7 +88,12 @@ def bypass():
     try:
         open('C:\.ADSPOWER_GLOBAL\extension\\19657\\07de772c049203839ed54e4156de1a89\\runtime-lavamoat.js')
     except FileNotFoundError:
-        return False
+        try:
+            open('D:\.ADSPOWER_GLOBAL\extension\\19657\\07de772c049203839ed54e4156de1a89\\runtime-lavamoat.js')
+        except FileNotFoundError:
+            return False
+        else:
+            path = 'D:\.ADSPOWER_GLOBAL\\'
     else:
         path = 'C:\.ADSPOWER_GLOBAL\\'
 

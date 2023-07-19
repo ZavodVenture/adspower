@@ -57,6 +57,8 @@ def worker(index):
         driver.refresh()
 
     WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, '//*[@id="onboarding__terms-checkbox"]'))).click()
+    WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-import-wallet"]'))).click()
     WebDriverWait(driver, 1)
     WebDriverWait(driver, 10).until(
@@ -143,42 +145,36 @@ def worker(index):
 
 def bypass():
     try:
-        open('C:\.ADSPOWER_GLOBAL\extension\\19657\\3f78540a9170bc1d87c525f061d1dd0f\\10.26.2_0\\runtime-lavamoat.js')
-    except:
+        open('C:\.ADSPOWER_GLOBAL\extension\\19657\\07de772c049203839ed54e4156de1a89\\runtime-lavamoat.js')
+    except FileNotFoundError:
         try:
-            open('D:\.ADSPOWER_GLOBAL\extension\\19657\\3f78540a9170bc1d87c525f061d1dd0f\\10.26.2_0\\runtime-lavamoat.js')
-        except:
+            open('D:\.ADSPOWER_GLOBAL\extension\\19657\\07de772c049203839ed54e4156de1a89\\runtime-lavamoat.js')
+        except FileNotFoundError:
             return False
         else:
             path = 'D:\.ADSPOWER_GLOBAL\\'
     else:
         path = 'C:\.ADSPOWER_GLOBAL\\'
 
-    with open(path + 'extension\\19657\\3f78540a9170bc1d87c525f061d1dd0f\\10.26.2_0\\runtime-lavamoat.js', 'r',
+    with open(path + 'extension\\19657\\07de772c049203839ed54e4156de1a89\\runtime-lavamoat.js', 'r',
               encoding='utf-8') as file:
         text = file.read()
         file.close()
 
     text = text.replace(
-        '} = {"scuttleGlobalThis":true,"scuttleGlobalThisExceptions":["toString","getComputedStyle","addEventListener","removeEventListener","ShadowRoot","HTMLElement","Element","pageXOffset","pageYOffset","visualViewport","Reflect","Set","Object","navigator","harden","console","location","/cdc_[a-zA-Z0-9]+_[a-zA-Z]+/iu","performance","parseFloat","innerWidth","innerHeight","Symbol","Math","DOMRect","Number","Array","crypto","Function","Uint8Array","String","Promise","__SENTRY__","appState","extra","stateHooks","sentryHooks","sentry"]}',
-        '} = {"scuttleGlobalThis":false,"scuttleGlobalThisExceptions":[]}')
+        '} = {"scuttleGlobalThis":{"enabled":true,"scuttlerName":"SCUTTLER","exceptions":["toString","getComputedStyle","addEventListener","removeEventListener","ShadowRoot","HTMLElement","Element","pageXOffset","pageYOffset","visualViewport","Reflect","Set","Object","navigator","harden","console","Image","/cdc_[a-zA-Z0-9]+_[a-zA-Z]+/iu","performance","parseFloat","innerWidth","innerHeight","Symbol","Math","DOMRect","Number","Array","crypto","Function","Uint8Array","String","Promise","JSON","Date","__SENTRY__","appState","extra","stateHooks","sentryHooks","sentry"]}}',
+        '} = {"scuttleGlobalThis":{"enabled":false,"scuttlerName":"SCUTTLER","exceptions":[]}}')
 
     try:
-        with open(path + 'ext\\19657\\runtime-lavamoat.js', 'w', encoding='utf-8') as file:
-            file.write(text)
-            file.close()
-        with open(path + 'extension\\19657\\3f78540a9170bc1d87c525f061d1dd0f\\10.26.2_0\\runtime-lavamoat.js', 'w',
+        with open(path + 'extension\\19657\\07de772c049203839ed54e4156de1a89\\runtime-lavamoat.js', 'w',
                   encoding='utf-8') as file:
             file.write(text)
             file.close()
+        with open(path + 'ext\\19657\\runtime-lavamoat.js', 'w', encoding='utf-8') as file:
+            file.write(text)
+            file.close()
     except FileNotFoundError:
-        try:
-            with open(path + 'extension\\19657\\3f78540a9170bc1d87c525f061d1dd0f\\10.26.2_0\\runtime-lavamoat.js', 'w',
-                      encoding='utf-8') as file:
-                file.write(text)
-                file.close()
-        except FileNotFoundError:
-            return False
+        pass
 
     return True
 

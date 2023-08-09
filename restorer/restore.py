@@ -266,7 +266,7 @@ if __name__ == '__main__':
 
     bar.finish()
 
-    print('\nThe strings were found successfully. Launching profiles...\n')
+    print('\nThe rows were found successfully. Launching profiles...\n')
 
     bar = Bar('Launching profiles...', max=len(profiles))
     ws_list = []

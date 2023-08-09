@@ -348,7 +348,7 @@ if __name__ == '__main__':
 
     print('\nProfiles have been created successfully. Launching profiles...\n')
 
-    bar = Bar("Запуск профилей", max=profile_numbers)
+    bar = Bar("Launching profiles", max=profile_numbers)
     ws_list = []
     driver_path = ''
     for i in profile_ids:

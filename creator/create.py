@@ -24,7 +24,7 @@ API_URl = 'http://localhost:50325/'
 
 
 def init_exit():
-    input("\nНажмите Enter, чтобы выйти")
+    input("\nPress Enter to close program...")
     exit()
 
 
@@ -331,12 +331,12 @@ if __name__ == '__main__':
             r = requests.post(API_URl + 'api/v1/user/create', json=account_data).json()
         except Exception as e:
             bar.finish()
-            print('\nНе удалось создать профиль: ' + str(e))
+            print('\nCouldn\'t create profile: ' + str(e))
             init_exit()
         else:
             if r['code'] != 0:
                 bar.finish()
-                print('\nНе удалось создать профиль: ' + r['msg'])
+                print('\nCouldn\'t create profile: ' + r['msg'])
                 init_exit()
             else:
                 profile_ids.append(r['data']['id'])

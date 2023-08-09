@@ -18,7 +18,7 @@ from shutil import rmtree
 
 
 def init_exit():
-    input("\nНажмите Enter, чтобы выйти")
+    input("\nPress Enter to close program...")
     exit()
 
 
@@ -193,7 +193,7 @@ if __name__ == '__main__':
         if not metamask[-1]:
             metamask = metamask[:-1]
     except FileNotFoundError:
-        print(f'Файл {config["settings"]["metamask_file"]} не найден')
+        print(f'File {config["settings"]["metamask_file"]} not found')
         init_exit()
 
     print('Verification is complete, search for rows associated with profiles...\n')

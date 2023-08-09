@@ -172,16 +172,16 @@ config.read('restore.ini')
 API_URl = 'http://localhost:50325/'
 
 if __name__ == '__main__':
-    print('Проверка перед запуском...\n')
+    print('Pre-launch verification...\n')
 
     try:
         status = requests.get(API_URl + 'status').json()
     except Exception:
-        print('API недоступен. Проверьте, запущен ли AdsPower.')
+        print('The API is unavailable. Check if AdsPower is running.')
         init_exit()
 
     if not bypass():
-        print('Ошибка MetaMask. Проверьте, установлено ли расширение в AdsPower.')
+        print('MetaMask error. Check if the extension is installed in AdsPower.')
         init_exit()
 
     sleep(1)
@@ -196,27 +196,33 @@ if __name__ == '__main__':
         print(f'Файл {config["settings"]["metamask_file"]} не найден')
         init_exit()
 
-    print('Проверка завершена, поиск строк, связанных с профилями...\n')
+    print('Verification is complete, search for rows associated with profiles...\n')
 
     first_profile = int(config['settings']['first_profile'])
     profile_number = int(config['settings']['profile_number'])
 
     profiles = list(range(first_profile, profile_number + first_profile))
     lines = []
+
+    bar = Bar('Searching rows', max=len(profiles))
+
     for profile in profiles:
         try:
             r = requests.get(API_URl + 'api/v1/user/list', params={'serial_number': profile}).json()
         except Exception as e:
-            print(f'Не удалось найти профиль с номером {profile}: {e}')
+            bar.finish()
+            print(f'Couldn\'t find a profile with a number {profile}: {e}')
             init_exit()
         else:
             sleep(1)
             if r['code'] != 0:
-                print(f'Не удалось найти профиль с номером {profile}: {r["msg"]}')
+                bar.finish()
+                print(f'Couldn\'t find a profile with a number {profile}: {r["msg"]}')
                 init_exit()
             else:
                 if not r['data']['list']:
-                    print(f'Не удалось найти профиль с номером {profile}')
+                    bar.finish()
+                    print(f'Couldn\'t find a profile with a number {profile}')
                     init_exit()
 
                 group_id = r['data']['list'][0]['group_id']
@@ -226,18 +232,21 @@ if __name__ == '__main__':
                 try:
                     offset = int(re.findall(r'Profiles(\d*)-\d*_.*', group_name)[0]) - 1
                 except Exception as e:
-                    print('Не удалось определить номер первого профиля в группе (группа имеет не стандартное название)')
+                    bar.finish()
+                    print('Could not determine the number of the first profile in the group (the group has a non-standard name)')
                     init_exit()
 
                 try:
                     r = requests.get(API_URl + 'api/v1/user/list', params={'group_id': group_id, 'page_size': 100}).json()
                 except Exception as e:
-                    print(f'Не удалось найти профили в группе: {e}')
+                    bar.finish()
+                    print(f'Could not find profiles in the group: {e}')
                     init_exit()
                 else:
                     sleep(1)
                     if r['code'] != 0:
-                        print(f'Не удалось найти профили в группе: {r["msg"]}')
+                        bar.finish()
+                        print(f'Could not find profiles in the group: {r["msg"]}')
                         init_exit()
                     else:
                         group = r['data']['list']
@@ -250,11 +259,16 @@ if __name__ == '__main__':
                                 flag = True
                                 break
                         if not flag:
-                            print(f'Не удалось найти номер строки для профиля {profile}')
+                            bar.finish()
+                            print(f'Could not find the line number for the profile {profile}')
                             init_exit()
+                        bar.next()
 
-    print('Строки успешно найдены. Запуск профилей...\n')
-    bar = Bar('Запуск профилей', max=len(profiles))
+    bar.finish()
+
+    print('\nThe strings were found successfully. Launching profiles...\n')
+
+    bar = Bar('Launching profiles...', max=len(profiles))
     ws_list = []
     driver_path = ''
 
@@ -269,12 +283,12 @@ if __name__ == '__main__':
             r = requests.get(API_URl + 'api/v1/browser/start', params=args).json()
         except Exception as e:
             bar.finish()
-            print('\nНе удалось запустить профиль: ' + str(e))
+            print('\nFailed to launch profile: ' + str(e))
             init_exit()
         else:
             if r['code'] != 0:
                 bar.finish()
-                print('\nНе удалось запустить профиль: ' + r['msg'])
+                print('\nFailed to launch profile: ' + r['msg'])
                 init_exit()
             else:
                 ws_list.append(r["data"]["ws"]["selenium"])
@@ -285,9 +299,9 @@ if __name__ == '__main__':
 
     bar.finish()
 
-    print('\nПрофили запущены. Восстановление профилей...\n')
+    print('\nProfiles are running. Restoring profiles...\n')
 
-    bar = Bar("Восстановление профилей", max=len(profiles))
+    bar = Bar("Restoring profiles...", max=len(profiles))
     threads = chunks([Thread(target=worker, args=(i, lines[i])) for i in range(len(profiles))], 2)
     for group in threads:
         for thread in group:
@@ -296,5 +310,5 @@ if __name__ == '__main__':
             thread.join()
     bar.finish()
 
-    print('\nРабота программы успешно завершена.')
+    print('\nThe program has been successfully completed.')
     init_exit()

@@ -215,16 +215,16 @@ def bypass():
 
 
 if __name__ == '__main__':
-    print('Проверка перед запуском...\n')
+    print('Pre-launch verification...\n')
 
     try:
         status = requests.get(API_URl + 'status').json()
     except Exception:
-        print('API недоступен. Проверьте, запущен ли AdsPower.')
+        print('The API is unavailable. Check if AdsPower is running.')
         init_exit()
 
     if not bypass():
-        print('Ошибка MetaMask. Проверьте, установлено ли расширение в AdsPower.')
+        print('MetaMask error. Check if the extension is installed in AdsPower.')
         init_exit()
 
     metamask = None
@@ -236,20 +236,20 @@ if __name__ == '__main__':
         if not metamask[-1]:
             metamask = metamask[:-1]
     except FileNotFoundError:
-        print(f'Файл {config["Settings"]["metamask_file"]} не найден.')
+        print(f'File {config["Settings"]["metamask_file"]} not found')
         init_exit()
 
     try:
         proxy = open(config['Settings']['proxy_file'])
         proxy = proxy.read().split('\n')
     except FileNotFoundError:
-        print(f'Файл {config["Settings"]["proxy_file"]} не найден. Прокси не будут использованы.\n')
+        print(f'File {config["Settings"]["proxy_file"]} not found. Proxies will not be used.\n')
 
     try:
         discord = open(config['Settings']['discord_file'])
         discord = discord.read().split('\n')
     except FileNotFoundError:
-        print(f'Файл {config["Settings"]["discord_file"]} не найден. Дискорды не будут использованы.\n')
+        print(f'File {config["Settings"]["discord_file"]} not found. Discords will not be used.\n')
 
     offset = int(config['Settings']['offset'])
 
@@ -270,11 +270,11 @@ if __name__ == '__main__':
     if profile_numbers > proxy_len or\
        profile_numbers > discord_len or\
        profile_numbers > metamask_len:
-        print('Количество строк в файлах с учётом смещения меньше, чем количество профилей, указанное в настройках.\n'
-              f'Будет создано {min(proxy_len, discord_len, metamask_len)} профилей вместо {profile_numbers}\n')
+        print('The number of lines in files, taking into account the offset, is less than the number of profiles specified in the settings.\n'
+              f'Will be created {min(proxy_len, discord_len, metamask_len)} profiles except {profile_numbers}\n')
         profile_numbers = min(proxy_len, discord_len, metamask_len)
 
-    print('Проверка завершена. Создание профилей AdsPower...\n')
+    print('Verification is complete. Creating AdsPower profiles...\n')
 
     group_name = f'Profiles{offset+1}-{offset+profile_numbers}_{config["Settings"]["group_name"]}'
     group_id = 0
@@ -294,17 +294,17 @@ if __name__ == '__main__':
         try:
             r = requests.post(API_URl + 'api/v1/group/create', json={'group_name': group_name}).json()
         except Exception as e:
-            print('Не удалось создать группу профилей AdsPower: ' + str(e))
+            print('Failed to create AdsPower profile group: ' + str(e))
             init_exit()
         else:
             if r['code'] != 0:
-                print('Не удалось создать группу профилей AdsPower: ' + r['msg'])
+                print('Failed to create AdsPower profile group: ' + r['msg'])
                 init_exit()
             else:
                 group_id = r['data']['group_id']
 
     profile_ids = []
-    bar = Bar('Создание профилей', max=profile_numbers)
+    bar = Bar('Creating profiles', max=profile_numbers)
     for i in range(profile_numbers):
         if proxy:
             host, port, user, password = proxy[i].split(':')
@@ -346,7 +346,7 @@ if __name__ == '__main__':
 
     bar.finish()
 
-    print('\nПрофили успешно созданы. Запуск профилей...\n')
+    print('\nProfiles have been created successfully. Launching profiles...\n')
 
     bar = Bar("Запуск профилей", max=profile_numbers)
     ws_list = []
@@ -360,12 +360,12 @@ if __name__ == '__main__':
             r = requests.get(API_URl + 'api/v1/browser/start', params=args).json()
         except Exception as e:
             bar.finish()
-            print('\nНе удалось запустить профиль: ' + str(e))
+            print('\nFailed to launch profile: ' + str(e))
             init_exit()
         else:
             if r['code'] != 0:
                 bar.finish()
-                print('\nНе удалось запустить профиль: ' + r['msg'])
+                print('\nFailed to launch profile: ' + r['msg'])
                 init_exit()
             else:
                 ws_list.append(r["data"]["ws"]["selenium"])
@@ -376,9 +376,9 @@ if __name__ == '__main__':
 
     bar.finish()
 
-    print('\nПрофили запущены. Настройка профилей...\n')
+    print('\nProfiles are running. Configuring profiles...\n')
 
-    bar = Bar("Настройка профилей", max=profile_numbers)
+    bar = Bar("Configuring profiles", max=profile_numbers)
 
     threads = chunks([Thread(target=worker, args=(i,)) for i in range(profile_numbers)], int(config['Settings']['profile_setup_numbers']))
     for group in threads:
@@ -389,5 +389,5 @@ if __name__ == '__main__':
 
     bar.finish()
 
-    print('\nРабота программы успешно завершена.')
+    print('\nThe program has been successfully completed.')
     init_exit()

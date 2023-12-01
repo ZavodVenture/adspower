@@ -190,10 +190,10 @@ if __name__ == '__main__':
     except Exception:
         print('The API is unavailable. Check if AdsPower is running.')
         init_exit()
-
-    if not bypass():
-        print('MetaMask error. Check if the extension is installed in AdsPower.')
-        init_exit()
+    if int(config['settings']['do_bypass']):
+        if not bypass():
+            print('MetaMask error. Check if the extension is installed in AdsPower.')
+            init_exit()
 
     sleep(1)
 

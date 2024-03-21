@@ -36,19 +36,31 @@ def chunks(lst, n):
     return result
 
 
-def worker(index):
-    options = Options()
-    options.add_experimental_option("debuggerAddress", ws_list[index])
-    service = Service(executable_path=driver_path)
-    driver = webdriver.Chrome(service=service, options=options)
+def get_exts(driver):
+    driver.get('chrome://extensions/')
 
-    WebDriverWait(driver, 60).until_not(EC.number_of_windows_to_be(1))
     sleep(5)
-    windows = driver.window_handles
-    for window in range(len(driver.window_handles) - 1):
-        driver.switch_to.window(windows[window])
-        driver.close()
-    driver.switch_to.window(driver.window_handles[0])
+
+    script = '''ext_manager = document.getElementsByTagName('extensions-manager')[0].shadowRoot;
+    item_list = ext_manager.getElementById('items-list').shadowRoot;
+    container = item_list.getElementById('container');
+    extension_list = container.getElementsByClassName('items-container')[1].getElementsByTagName('extensions-item');
+
+    var extensions = [];
+
+    for (i = 0; i < extension_list.length; i++) {
+        console.log(extension_list[i]);
+        name = extension_list[i].shadowRoot.getElementById('name').textContent;
+        id = extension_list[i].id;
+        extensions.push({'id': id, 'name': name});
+    }
+
+    return extensions;'''
+
+    return driver.execute_script(script)
+
+
+def import_metamask(driver, index):
     driver.get('chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html')
 
     try:
@@ -75,7 +87,8 @@ def worker(index):
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="import-srp-confirm"]'))).click()
 
-    meta_password = ''.join(random.choice(ascii_letters + digits) for j in range(8)) if not config['Settings']['password'] else config['Settings']['password']
+    meta_password = ''.join(random.choice(ascii_letters + digits) for j in range(8)) if not config['Settings'][
+        'password'] else config['Settings']['password']
 
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-new"]'))).send_keys(
@@ -108,39 +121,135 @@ def worker(index):
     WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-done"]'))).click()
 
-    if discord:
-        driver.get('https://discord.com/login/')
 
-        script = """function login(token) {
-        setInterval(() => {
-        document.body.appendChild(document.createElement `iframe`).contentWindow.localStorage.token = `"${token}"`
-        }, 50);
-        setTimeout(() => {
-        location.reload();
-        }, 2500);
-        }
-    
-        login('%s')""" % discord[index]
+def import_discord(driver, index):
+    driver.get('https://discord.com/login/')
 
-        attempts = 0
-        while attempts != 3:
-            driver.execute_script(script)
-            try:
-                WebDriverWait(driver, 7).until(EC.url_to_be("https://discord.com/channels/@me"))
-            except Exception:
-                attempts += 1
-                continue
-            else:
-                break
+    script = """function login(token) {
+            setInterval(() => {
+            document.body.appendChild(document.createElement `iframe`).contentWindow.localStorage.token = `"${token}"`
+            }, 50);
+            setTimeout(() => {
+            location.reload();
+            }, 2500);
+            }
 
-        if attempts == 3:
-            with open('errors.txt', 'a', encoding='utf-8') as file:
-                file.write(f'{datetime.now()} - Не удалось войти в дискорд ({offset + index + 1} строка в файле)\n')
-                file.close()
+            login('%s')""" % discord[index]
+
+    attempts = 0
+    while attempts != 3:
+        driver.execute_script(script)
+        try:
+            WebDriverWait(driver, 7).until(EC.url_to_be("https://discord.com/channels/@me"))
+        except Exception:
+            attempts += 1
+            continue
         else:
-            driver.get("https://www.google.com/")
+            break
+
+    if attempts == 3:
+        with open('errors.txt', 'a', encoding='utf-8') as file:
+            file.write(f'{datetime.now()} - Не удалось войти в дискорд ({offset + index + 1} строка в файле)\n')
+            file.close()
     else:
-        driver.get("https://www.google.com/")
+        driver.get("about:blank")
+
+
+def import_martin(driver: webdriver.Chrome, metamask_index):
+    extensions = get_exts(driver)
+
+    try:
+        martin_id = [ex['id'] for ex in extensions if 'Martian' in ex['name']][0]
+    except IndexError:
+        raise Exception('Martian extension not found')
+
+    old_tab = driver.current_window_handle
+    driver.switch_to.new_window()
+
+    driver.get(f'chrome-extension://{martin_id}/onboarding/onboarding.html')
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]'))).click()
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]/div/div[1]'))).click()
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//input[@name="0"]')))
+
+    seed = metamask[metamask_index].split()
+
+    for j in range(12):
+        driver.find_element(By.XPATH, f'//input[@name="{j}"]').send_keys(seed[j])
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
+
+    WebDriverWait(driver, 90).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]/span')))
+
+    meta_password = ''.join(random.choice(ascii_letters + digits) for _ in range(8)) if not config['Settings']['password'] else config['Settings']['password']
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]/div/input'))).send_keys(meta_password)
+    sleep(0.2)
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]/div/input'))).send_keys(meta_password)
+    sleep(0.2)
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]/span'))).click()
+    sleep(0.2)
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[7]'))).click()
+
+    el = WebDriverWait(driver, 90).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]')))
+    sleep(3)
+    el.click()
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]'))).click()
+    sleep(3)
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
+
+    sleep(1)
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
+
+    driver.switch_to.window(old_tab)
+
+    driver.get(f'chrome-extension://{martin_id}/index.html')
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/form/div/div/input'))).send_keys(meta_password)
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/form/button'))).click()
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[2]/div[10]/div/div[1]/img'))).click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[6]/div/div/div/button[5]'))).click()
+
+    el = WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[4]/button')))
+
+    driver.execute_script('arguments[0].scrollIntoView(true)', el)
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[2]/div[9]'))).click()
+    sleep(1)
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[6]/div[1]/div[2]/div[6]/div'))).click()
+    sleep(1)
+
+    driver.get('about:blank')
+
+
+def worker(index):
+    options = Options()
+    options.add_experimental_option("debuggerAddress", ws_list[index])
+    service = Service(executable_path=driver_path)
+    driver = webdriver.Chrome(service=service, options=options)
+
+    WebDriverWait(driver, 60).until_not(EC.number_of_windows_to_be(1))
+    sleep(5)
+    windows = driver.window_handles
+    for window in range(len(driver.window_handles) - 1):
+        driver.switch_to.window(windows[window])
+        driver.close()
+    driver.switch_to.window(driver.window_handles[0])
+
+    import_metamask(driver, index)
+
+    import_martin(driver, index)
+
+    if discord:
+        import_discord(driver, index)
 
     bar.next()
 

@@ -235,6 +235,10 @@ def worker(index):
     options.add_experimental_option("debuggerAddress", ws_list[index])
     service = Service(executable_path=driver_path)
     driver = webdriver.Chrome(service=service, options=options)
+    try:
+        driver.fullscreen_window()
+    except:
+        pass
 
     WebDriverWait(driver, 60).until_not(EC.number_of_windows_to_be(1))
     sleep(5)

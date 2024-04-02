@@ -324,6 +324,10 @@ def worker(ws_index, metamask_index):
     options.add_experimental_option("debuggerAddress", ws_list[ws_index])
     service = Service(executable_path=driver_path)
     driver = webdriver.Chrome(service=service, options=options)
+    try:
+        driver.fullscreen_window()
+    except:
+        pass
 
     tabs = driver.window_handles
     curr = driver.current_window_handle

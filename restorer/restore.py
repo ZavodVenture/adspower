@@ -14,8 +14,7 @@ from progress.bar import Bar
 from threading import Thread
 import random
 from string import ascii_letters, digits
-import os
-from shutil import rmtree
+from selenium.webdriver.common.keys import Keys
 
 
 def init_exit():
@@ -55,268 +54,97 @@ def get_exts(driver):
     return driver.execute_script(script)
 
 
+def new_backpack(driver, metamask_index, martin_id):
+    driver.get(f'chrome-extension://{martin_id}/options.html?onboarding=true')
 
-def import_metamask(driver, metamask_index):
-    driver.get('chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html')
-
-    try:
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '//div[@class="critical-error"]')))
-    except:
-        pass
-    else:
-        driver.refresh()
-
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="onboarding__terms-checkbox"]'))).click()
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-import-wallet"]'))).click()
-    WebDriverWait(driver, 1)
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="metametrics-i-agree"]'))).click()
-
-    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, 'import-srp__srp-word-0')))
-
-    seed = metamask[metamask_index].split()
-    for j in range(12):
-        driver.find_element(By.ID, f'import-srp__srp-word-{j}').send_keys(seed[j])
-
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="import-srp-confirm"]'))).click()
-
-    meta_password = ''.join(random.choice(ascii_letters + digits) for j in range(8)) if not config['settings'][
-        'password'] else config['settings']['password']
-
-    WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-new"]'))).send_keys(
-        meta_password)
-    WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located(((By.XPATH, '//input[@data-testid="create-password-confirm"]')))).send_keys(
-        meta_password)
-    WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-terms"]'))).click()
-
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="create-password-import"]'))).click()
-
-    while 1:
-        try:
-            sleep(5)
-            driver.find_element(By.XPATH, '//div[@class="loading-overlay"]')
-        except:
-            break
-        else:
-            driver.refresh()
-            continue
-
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-complete-done"]'))).click()
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-next"]'))).click()
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-done"]'))).click()
-
-
-def new_martin(driver, metamask_index, martin_id):
-    old_tab = driver.current_window_handle
-    driver.switch_to.new_window()
-
-    driver.get(f'chrome-extension://{martin_id}/onboarding/onboarding.html')
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]'))).click()
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]/div/div[1]'))).click()
-
-    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//input[@name="0"]')))
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/div/div[3]/button[2]'))).click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/div[1]/div[2]/button[1]'))).click()
+    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '//input')))
 
     seed = metamask[metamask_index].split()
 
+    inputs = driver.find_elements(By.XPATH, '//input')
+
     for j in range(12):
-        driver.find_element(By.XPATH, f'//input[@name="{j}"]').send_keys(seed[j])
+        inputs[j].send_keys(seed[j])
 
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/div[1]/div[3]/button'))).click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/div[1]/div[2]/button[2]'))).click()
 
-    WebDriverWait(driver, 90).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]/span')))
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/div[1]/div[2]/li/button')))
+    sleep(10)
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/div[1]/div[2]/li/button'))).click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id=":r2a:"]/div/div[2]'))).click()
+    sleep(1)
+
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/div[1]/div[3]/div/div[1]/div/div[1]'))).click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/div[1]/div[4]/button'))).click()
 
     meta_password = ''.join(random.choice(ascii_letters + digits) for _ in range(8)) if not config['settings'][
         'password'] else config['settings']['password']
 
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]/div/input'))).send_keys(
-        meta_password)
-    sleep(0.2)
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]/div/input'))).send_keys(
-        meta_password)
-    sleep(0.2)
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/form/div[2]/div[1]/span/input'))).send_keys(meta_password)
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/form/div[2]/div[2]/span/input'))).send_keys(meta_password)
 
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]/span'))).click()
-    sleep(0.2)
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/form/div[3]/button[1]'))).click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/form/div[3]/button[2]'))).click()
 
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[7]'))).click()
+    sleep(2)
 
-    el = WebDriverWait(driver, 90).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]')))
-    sleep(3)
-    el.click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/div[1]/div[4]/button[2]'))).click()
 
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]'))).click()
-    sleep(3)
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="options"]/span/span/div/div/div/div/div[2]/button')))
 
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
+    driver.get(f'chrome-extension://{martin_id}/popup.html')
 
-    sleep(1)
+    WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/span[1]/span/div/div/div[2]/div/div/div/div[1]/div/div[2]/div[2]/div/div/div/div[1]/div/div[1]/div/div/div/div/div/div/div[1]/div/div[2]/div[2]/div/div/div/div[2]/div/div[2]/div[2]/div[1]/div/div/button'))).click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[4]/div[3]/div/div[3]/button'))).click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/span[1]/span/div/div/div[2]/div/div/div/div[1]/div[2]/div[2]/div[2]/div/div/div/div[1]/div/div/div/div[1]/div/div[2]/div[2]/div/div/div/div[1]/div/div[1]/div/ul[2]/div[2]'))).click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/span[1]/span/div/div/div[2]/div/div/div/div[1]/div[2]/div[2]/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[2]/div[2]/div[2]/div/div/div/div[1]/div/div[1]/div/ul[1]/div[1]'))).click()
 
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
 
-    driver.switch_to.window(old_tab)
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/span[1]/span/div/div/div[2]/div/div/div/div[1]/div[2]/div[2]/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[3]/div[2]/div[2]/div/div/div/div[1]/div/div[1]/form/div[1]/div/div/div/input'))).send_keys(Keys.CONTROL + 'a')
+    sleep(0.1)
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/span[1]/span/div/div/div[2]/div/div/div/div[1]/div[2]/div[2]/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[3]/div[2]/div[2]/div/div/div/div[1]/div/div[1]/form/div[1]/div/div/div/input'))).send_keys('999')
 
-    driver.get(f'chrome-extension://{martin_id}/index.html')
+    el = driver.find_element(By.XPATH, '//*[@id="root"]/span[1]/span/div/div/div[2]/div/div/div/div[1]/div[2]/div[2]/div[2]/div/div/div/div[1]/div/div/div/div[1]/div[3]/div[2]/div[2]/div/div/div/div[1]/div/div[1]/form/div[2]/button[2]')
 
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/form/div/div/input'))).send_keys(
-        meta_password)
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/form/button'))).click()
-
-    WebDriverWait(driver, 15).until(EC.element_to_be_clickable(
-        (By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[2]/div[10]/div/div[1]/img'))).click()
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[6]/div/div/div/button[5]'))).click()
-
-    el = WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[4]/button')))
-
-    driver.execute_script('arguments[0].scrollIntoView(true)', el)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[2]/div[9]'))).click()
-    sleep(1)
-    WebDriverWait(driver, 15).until(EC.element_to_be_clickable(
-        (By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[6]/div[1]/div[2]/div[6]/div'))).click()
+    driver.execute_script('arguments[0].click()', el)
     sleep(1)
 
     driver.get('about:blank')
 
 
-def old_martin(driver: webdriver.Chrome, metamask_index, martin_id):
-    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div/p'))).click()
-
-    WebDriverWait(driver, 15).until(EC.number_of_windows_to_be(2))
-    old_window = driver.current_window_handle
-    windows = driver.window_handles
-    windows.remove(old_window)
-    driver.switch_to.window(windows[0])
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]/div/div[1]'))).click()
-
-    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//input[@name="0"]')))
-
-    seed = metamask[metamask_index].split()
-
-    for j in range(12):
-        driver.find_element(By.XPATH, f'//input[@name="{j}"]').send_keys(seed[j])
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
-
-    WebDriverWait(driver, 90).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]/span')))
-
-    meta_password = ''.join(random.choice(ascii_letters + digits) for _ in range(8)) if not config['settings'][
-        'password'] else config['settings']['password']
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]/div/input'))).send_keys(
-        meta_password)
-    sleep(0.2)
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]/div/input'))).send_keys(
-        meta_password)
-    sleep(0.2)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]/span'))).click()
-    sleep(0.2)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[7]'))).click()
-
-    el = WebDriverWait(driver, 90).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]')))
-    sleep(3)
-    el.click()
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]'))).click()
-    sleep(3)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
-
+def old_backpack(driver: webdriver.Chrome, metamask_index, martin_id):
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/span[1]/span/div/div/div[2]/div[1]'))).click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/span[1]/span/div/div/div[2]/div[5]/div[1]/div/div[1]/div/div/div[1]'))).click()
+    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/span/span/div[2]/div[1]/div/div/div[2]/div[2]'))).click()
     sleep(1)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
-
-    driver.switch_to.window(old_window)
-
-    driver.get(f'chrome-extension://{martin_id}/index.html')
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/form/div/div/input'))).send_keys(
-        meta_password)
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/form/button'))).click()
-
-    try:
-        WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[2]/div[10]/div/div[1]/img'))).click()
-    except TimeoutException:
-        pass
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[6]/div/div/div/button[5]'))).click()
-
-    el = WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[4]/button')))
-
-    driver.execute_script('arguments[0].scrollIntoView(true)', el)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[2]/div[9]'))).click()
-    sleep(1)
-    WebDriverWait(driver, 15).until(EC.element_to_be_clickable(
-        (By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[6]/div[1]/div[2]/div[6]/div'))).click()
-    sleep(1)
-
-    driver.get('about:blank')
+    driver.switch_to.window(driver.window_handles[0])
+    new_backpack(driver, metamask_index, martin_id)
 
 
-def import_martin(driver: webdriver.Chrome, metamask_index):
+def import_backpack(driver: webdriver.Chrome, metamask_index):
     extensions = get_exts(driver)
 
     try:
-        martin_id = [ex['id'] for ex in extensions if 'Martian' in ex['name']][0]
+        backpack_id = [ex['id'] for ex in extensions if 'Backpack' in ex['name']][0]
     except IndexError:
         raise Exception('Martian extension not found')
 
-    driver.get(f'chrome-extension://{martin_id}/index.html')
+    driver.get(f'chrome-extension://{backpack_id}/popup.html')
+    sleep(3)
+    driver.switch_to.window(driver.window_handles[0])
 
-    try:
-        WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '//*[@id="root"]/div[2]/div/form/div/div/input')))
-    except TimeoutException:
-        new_martin(driver, metamask_index, martin_id)
+    if driver.current_url == f'chrome-extension://{backpack_id}/options.html?onboarding=true':
+        new_backpack(driver, metamask_index, backpack_id)
     else:
-        old_martin(driver, metamask_index, martin_id)
+        try:
+            WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '//input[@type="password"]')))
+        except TimeoutException:
+            return
+        else:
+            old_backpack(driver, metamask_index, backpack_id)
 
 
 def worker(ws_index, metamask_index):
@@ -341,93 +169,10 @@ def worker(ws_index, metamask_index):
     driver.switch_to.window(curr)
     driver.get('about:blank')
 
-    import_metamask(driver, metamask_index)
-    import_martin(driver, metamask_index)
+    import_backpack(driver, metamask_index)
 
     driver.get('about:blank')
     bar.next()
-
-
-def bypass():
-    for disk in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']:
-        try:
-            os.listdir(f'{disk}:\.ADSPOWER_GLOBAL')
-        except FileNotFoundError:
-            continue
-        else:
-            adspower_path = f'{disk}:\.ADSPOWER_GLOBAL'
-            break
-    else:
-        return False
-
-    if 'extension' in os.listdir(adspower_path):
-        extension_folders = os.listdir(f'{adspower_path}\\extension')
-
-        extension_changed = False
-
-        for extension in extension_folders:
-            current_extension_folders = os.listdir(f'{adspower_path}\\extension\\{extension}')
-
-            for folder in current_extension_folders:
-                if not os.path.isdir(f'{adspower_path}\\extension\\{extension}\\{folder}'):
-                    continue
-
-                if 'runtime-lavamoat.js' in os.listdir(f'{adspower_path}\\extension\\{extension}\\{folder}'):
-                    lavamoat_path = f'{adspower_path}\\extension\\{extension}\\{folder}\\runtime-lavamoat.js'
-                    with open(lavamoat_path, encoding='utf-8') as file:
-                        text = file.read()
-                        file.close()
-                    with open(lavamoat_path, 'w', encoding='utf-8') as file:
-                        replaced_text = re.sub(r'} = {"scuttleGlobalThis":\{.*}',
-                                               '} = {"scuttleGlobalThis":{"enabled":false,"scuttlerName":"SCUTTLER","exceptions":[]}}',
-                                               text)
-                        file.write(replaced_text)
-                        file.close()
-
-                    extension_changed = True
-
-        if not extension_changed:
-            return False
-
-    if 'ext' in os.listdir(adspower_path):
-        ext_folders = os.listdir(f'{adspower_path}\\ext')
-
-        extension_changed = False
-
-        for extension in ext_folders:
-            if not os.path.isdir(f'{adspower_path}\\ext\\{extension}'):
-                continue
-
-            if 'runtime-lavamoat.js' in os.listdir(f'{adspower_path}\\ext\\{extension}'):
-                lavamoat_path = f'{adspower_path}\\ext\\{extension}\\runtime-lavamoat.js'
-                with open(lavamoat_path, encoding='utf-8') as file:
-                    text = file.read()
-                    file.close()
-                with open(lavamoat_path, 'w', encoding='utf-8') as file:
-                    replaced_text = re.sub(r'} = {"scuttleGlobalThis":\{.*}',
-                                           '} = {"scuttleGlobalThis":{"enabled":false,"scuttlerName":"SCUTTLER","exceptions":[]}}',
-                                           text)
-                    file.write(replaced_text)
-                    file.close()
-                extension_changed = True
-
-        if not extension_changed:
-            return False
-
-    profiles_folders = os.listdir(f'{adspower_path}\\cache')
-
-    for profile_dir in profiles_folders:
-        profile_path = f'{adspower_path}\\cache\\{profile_dir}'
-
-        if 'extensionCenter' in os.listdir(profile_path) and '07de772c049203839ed54e4156de1a89' in os.listdir(f'{profile_path}\\extensionCenter'):
-            extension_path = f'{profile_path}\\extensionCenter\\07de772c049203839ed54e4156de1a89'
-            rmtree(extension_path)
-
-        if 'Default' in os.listdir(profile_path) and 'nkbihfbeogaeaoehlefnkodbefgpgknn' in os.listdir(f'{profile_path}\\Default\\Local Extension settings'):
-            extension_path = f'{profile_path}\\Default\\Local Extension settings\\nkbihfbeogaeaoehlefnkodbefgpgknn'
-            rmtree(extension_path)
-
-    return True
 
 
 config = ConfigParser()
@@ -443,10 +188,6 @@ if __name__ == '__main__':
     except Exception:
         print('The API is unavailable. Check if AdsPower is running.')
         init_exit()
-    if int(config['settings']['do_bypass']):
-        if not bypass():
-            print('MetaMask error. Check if the extension is installed in AdsPower.')
-            init_exit()
 
     sleep(1)
 

@@ -5,7 +5,7 @@ from selenium.common.exceptions import TimeoutException
 import requests
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as ec
 from configparser import ConfigParser
 from sys import exit
 import re
@@ -55,268 +55,44 @@ def get_exts(driver):
     return driver.execute_script(script)
 
 
-
-def import_metamask(driver, metamask_index):
-    driver.get('chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html')
-
-    try:
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '//div[@class="critical-error"]')))
-    except:
-        pass
-    else:
-        driver.refresh()
-
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="onboarding__terms-checkbox"]'))).click()
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-import-wallet"]'))).click()
-    WebDriverWait(driver, 1)
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="metametrics-i-agree"]'))).click()
-
-    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, 'import-srp__srp-word-0')))
-
-    seed = metamask[metamask_index].split()
-    for j in range(12):
-        driver.find_element(By.ID, f'import-srp__srp-word-{j}').send_keys(seed[j])
-
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="import-srp-confirm"]'))).click()
-
-    meta_password = ''.join(random.choice(ascii_letters + digits) for j in range(8)) if not config['settings'][
-        'password'] else config['settings']['password']
-
-    WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-new"]'))).send_keys(
-        meta_password)
-    WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located(((By.XPATH, '//input[@data-testid="create-password-confirm"]')))).send_keys(
-        meta_password)
-    WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-terms"]'))).click()
-
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="create-password-import"]'))).click()
-
-    while 1:
-        try:
-            sleep(5)
-            driver.find_element(By.XPATH, '//div[@class="loading-overlay"]')
-        except:
-            break
-        else:
-            driver.refresh()
-            continue
-
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-complete-done"]'))).click()
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-next"]'))).click()
-    WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-done"]'))).click()
-
-
-def new_martin(driver, metamask_index, martin_id):
-    old_tab = driver.current_window_handle
-    driver.switch_to.new_window()
-
-    driver.get(f'chrome-extension://{martin_id}/onboarding/onboarding.html')
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]'))).click()
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]/div/div[1]'))).click()
-
-    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//input[@name="0"]')))
-
-    seed = metamask[metamask_index].split()
-
-    for j in range(12):
-        driver.find_element(By.XPATH, f'//input[@name="{j}"]').send_keys(seed[j])
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
-
-    WebDriverWait(driver, 90).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]/span')))
-
-    meta_password = ''.join(random.choice(ascii_letters + digits) for _ in range(8)) if not config['settings'][
-        'password'] else config['settings']['password']
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]/div/input'))).send_keys(
-        meta_password)
-    sleep(0.2)
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]/div/input'))).send_keys(
-        meta_password)
-    sleep(0.2)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]/span'))).click()
-    sleep(0.2)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[7]'))).click()
-
-    el = WebDriverWait(driver, 90).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]')))
-    sleep(3)
-    el.click()
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]'))).click()
-    sleep(3)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
-
-    sleep(1)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
-
-    driver.switch_to.window(old_tab)
-
-    driver.get(f'chrome-extension://{martin_id}/index.html')
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/form/div/div/input'))).send_keys(
-        meta_password)
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/form/button'))).click()
-
-    WebDriverWait(driver, 15).until(EC.element_to_be_clickable(
-        (By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[2]/div[10]/div/div[1]/img'))).click()
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[6]/div/div/div/button[5]'))).click()
-
-    el = WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[4]/button')))
-
-    driver.execute_script('arguments[0].scrollIntoView(true)', el)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[2]/div[9]'))).click()
-    sleep(1)
-    WebDriverWait(driver, 15).until(EC.element_to_be_clickable(
-        (By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[6]/div[1]/div[2]/div[6]/div'))).click()
-    sleep(1)
-
-    driver.get('about:blank')
-
-
-def old_martin(driver: webdriver.Chrome, metamask_index, martin_id):
-    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div/p'))).click()
-
-    WebDriverWait(driver, 15).until(EC.number_of_windows_to_be(2))
-    old_window = driver.current_window_handle
-    windows = driver.window_handles
-    windows.remove(old_window)
-    driver.switch_to.window(windows[0])
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]/div/div[1]'))).click()
-
-    WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//input[@name="0"]')))
-
-    seed = metamask[metamask_index].split()
-
-    for j in range(12):
-        driver.find_element(By.XPATH, f'//input[@name="{j}"]').send_keys(seed[j])
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
-
-    WebDriverWait(driver, 90).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]/span')))
-
-    meta_password = ''.join(random.choice(ascii_letters + digits) for _ in range(8)) if not config['settings'][
-        'password'] else config['settings']['password']
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[3]/div/input'))).send_keys(
-        meta_password)
-    sleep(0.2)
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]/div/input'))).send_keys(
-        meta_password)
-    sleep(0.2)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]/span'))).click()
-    sleep(0.2)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[7]'))).click()
-
-    el = WebDriverWait(driver, 90).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]')))
-    sleep(3)
-    el.click()
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[5]'))).click()
-    sleep(3)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
-
-    sleep(1)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/main/div/div/div[4]'))).click()
-
-    driver.switch_to.window(old_window)
-
-    driver.get(f'chrome-extension://{martin_id}/index.html')
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/form/div/div/input'))).send_keys(
-        meta_password)
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/form/button'))).click()
-
-    try:
-        WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[2]/div[10]/div/div[1]/img'))).click()
-    except TimeoutException:
-        pass
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[6]/div/div/div/button[5]'))).click()
-
-    el = WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[4]/button')))
-
-    driver.execute_script('arguments[0].scrollIntoView(true)', el)
-
-    WebDriverWait(driver, 15).until(
-        EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[2]/div[9]'))).click()
-    sleep(1)
-    WebDriverWait(driver, 15).until(EC.element_to_be_clickable(
-        (By.XPATH, '//*[@id="root"]/div[2]/div/div[5]/div[6]/div[1]/div[2]/div[6]/div'))).click()
-    sleep(1)
-
-    driver.get('about:blank')
-
-
-def import_martin(driver: webdriver.Chrome, metamask_index):
+def import_keplr(driver: webdriver.Chrome, metamask_index):
     extensions = get_exts(driver)
 
     try:
-        martin_id = [ex['id'] for ex in extensions if 'Martian' in ex['name']][0]
+        martin_id = [ex['id'] for ex in extensions if 'Keplr' in ex['name']][0]
     except IndexError:
-        raise Exception('Martian extension not found')
+        raise Exception('Keplr extension not found')
 
-    driver.get(f'chrome-extension://{martin_id}/index.html')
+    driver.get(f'chrome-extension://{martin_id}/register.html')
 
-    try:
-        WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '//*[@id="root"]/div[2]/div/form/div/div/input')))
-    except TimeoutException:
-        new_martin(driver, metamask_index, martin_id)
-    else:
-        old_martin(driver, metamask_index, martin_id)
+    WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, '//*[@id="app"]/div/div[2]/div/div/div/div/div/div[3]/div[3]/button'))).click()
+    WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, '//*[@id="app"]/div/div[2]/div/div/div[2]/div/div/div/div[1]/div/div[5]/button'))).click()
+    WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, '//*[@id="app"]/div/div[2]/div/div/div[3]/div/div/form/div[3]/div/div/div[1]//input')))
+
+    sleep(2)
+
+    inputs = driver.find_elements(By.XPATH, '//*[@id="app"]/div/div[2]/div/div/div[3]/div/div/form/div[3]/div/div/div[1]//input')
+
+    seed = metamask[metamask_index].split()
+
+    for j in range(12):
+        inputs[j].send_keys(seed[j])
+
+    WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, '//*[@id="app"]/div/div[2]/div/div/div[3]/div/div/form/div[6]/div/button'))).click()
+
+    inp = WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, '//*[@id="app"]/div/div[2]/div/div/div[4]/div/div/form/div/div[1]/div[2]/div/div/input')))
+    sleep(2)
+    inp.send_keys('Wallet')
+
+    meta_password = ''.join(random.choice(ascii_letters + digits) for _ in range(8)) if not config['settings']['password'] else config['settings']['password']
+
+    WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, '//*[@id="app"]/div/div[2]/div/div/div[4]/div/div/form/div/div[3]/div[2]/div/div/input'))).send_keys(meta_password)
+    WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, '//*[@id="app"]/div/div[2]/div/div/div[4]/div/div/form/div/div[5]/div[2]/div/div/input'))).send_keys(meta_password)
+
+    WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, '//*[@id="app"]/div/div[2]/div/div/div[4]/div/div/form/div/div[7]/button'))).click()
+    WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, '//*[@id="app"]/div/div[2]/div/div/div/div/div/div[9]/div/button'))).click()
+
+    driver.get('about:blank')
 
 
 def worker(ws_index, metamask_index):
@@ -341,15 +117,15 @@ def worker(ws_index, metamask_index):
     driver.switch_to.window(curr)
     driver.get('about:blank')
 
-    import_metamask(driver, metamask_index)
-    import_martin(driver, metamask_index)
+    import_keplr(driver, metamask_index)
 
     driver.get('about:blank')
     bar.next()
 
 
-def bypass():
-    for disk in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']:
+def reset_keplr():
+    for disk in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+                 'U', 'V', 'W', 'X', 'Y', 'Z']:
         try:
             os.listdir(f'{disk}:\.ADSPOWER_GLOBAL')
         except FileNotFoundError:
@@ -360,71 +136,14 @@ def bypass():
     else:
         return False
 
-    if 'extension' in os.listdir(adspower_path):
-        extension_folders = os.listdir(f'{adspower_path}\\extension')
-
-        extension_changed = False
-
-        for extension in extension_folders:
-            current_extension_folders = os.listdir(f'{adspower_path}\\extension\\{extension}')
-
-            for folder in current_extension_folders:
-                if not os.path.isdir(f'{adspower_path}\\extension\\{extension}\\{folder}'):
-                    continue
-
-                if 'runtime-lavamoat.js' in os.listdir(f'{adspower_path}\\extension\\{extension}\\{folder}'):
-                    lavamoat_path = f'{adspower_path}\\extension\\{extension}\\{folder}\\runtime-lavamoat.js'
-                    with open(lavamoat_path, encoding='utf-8') as file:
-                        text = file.read()
-                        file.close()
-                    with open(lavamoat_path, 'w', encoding='utf-8') as file:
-                        replaced_text = re.sub(r'} = {"scuttleGlobalThis":\{.*}',
-                                               '} = {"scuttleGlobalThis":{"enabled":false,"scuttlerName":"SCUTTLER","exceptions":[]}}',
-                                               text)
-                        file.write(replaced_text)
-                        file.close()
-
-                    extension_changed = True
-
-        if not extension_changed:
-            return False
-
-    if 'ext' in os.listdir(adspower_path):
-        ext_folders = os.listdir(f'{adspower_path}\\ext')
-
-        extension_changed = False
-
-        for extension in ext_folders:
-            if not os.path.isdir(f'{adspower_path}\\ext\\{extension}'):
-                continue
-
-            if 'runtime-lavamoat.js' in os.listdir(f'{adspower_path}\\ext\\{extension}'):
-                lavamoat_path = f'{adspower_path}\\ext\\{extension}\\runtime-lavamoat.js'
-                with open(lavamoat_path, encoding='utf-8') as file:
-                    text = file.read()
-                    file.close()
-                with open(lavamoat_path, 'w', encoding='utf-8') as file:
-                    replaced_text = re.sub(r'} = {"scuttleGlobalThis":\{.*}',
-                                           '} = {"scuttleGlobalThis":{"enabled":false,"scuttlerName":"SCUTTLER","exceptions":[]}}',
-                                           text)
-                    file.write(replaced_text)
-                    file.close()
-                extension_changed = True
-
-        if not extension_changed:
-            return False
-
     profiles_folders = os.listdir(f'{adspower_path}\\cache')
 
     for profile_dir in profiles_folders:
         profile_path = f'{adspower_path}\\cache\\{profile_dir}'
 
-        if 'extensionCenter' in os.listdir(profile_path) and '07de772c049203839ed54e4156de1a89' in os.listdir(f'{profile_path}\\extensionCenter'):
-            extension_path = f'{profile_path}\\extensionCenter\\07de772c049203839ed54e4156de1a89'
-            rmtree(extension_path)
-
-        if 'Default' in os.listdir(profile_path) and 'nkbihfbeogaeaoehlefnkodbefgpgknn' in os.listdir(f'{profile_path}\\Default\\Local Extension settings'):
-            extension_path = f'{profile_path}\\Default\\Local Extension settings\\nkbihfbeogaeaoehlefnkodbefgpgknn'
+        if 'Default' in os.listdir(profile_path) and 'dmkamcknogkgcdfhhbddcghachkejeap' in os.listdir(
+                f'{profile_path}\\Default\\Local Extension Settings'):
+            extension_path = f'{profile_path}\\Default\\Local Extension Settings\\dmkamcknogkgcdfhhbddcghachkejeap'
             rmtree(extension_path)
 
     return True
@@ -444,8 +163,8 @@ if __name__ == '__main__':
         print('The API is unavailable. Check if AdsPower is running.')
         init_exit()
     if int(config['settings']['do_bypass']):
-        if not bypass():
-            print('MetaMask error. Check if the extension is installed in AdsPower.')
+        if not reset_keplr():
+            print('Couldn\'t clear Keplr cache')
             init_exit()
 
     sleep(1)

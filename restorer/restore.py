@@ -55,6 +55,66 @@ def get_exts(driver):
     return driver.execute_script(script)
 
 
+def import_metamask(driver, metamask_index):
+    driver.get('chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html')
+
+    try:
+        WebDriverWait(driver, 5).until(ec.presence_of_element_located((By.XPATH, '//div[@class="critical-error"]')))
+    except:
+        pass
+    else:
+        driver.refresh()
+
+    WebDriverWait(driver, 10).until(
+        ec.element_to_be_clickable((By.XPATH, '//*[@id="onboarding__terms-checkbox"]'))).click()
+    WebDriverWait(driver, 10).until(
+        ec.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-import-wallet"]'))).click()
+    WebDriverWait(driver, 1)
+    WebDriverWait(driver, 10).until(
+        ec.element_to_be_clickable((By.XPATH, '//button[@data-testid="metametrics-i-agree"]'))).click()
+
+    WebDriverWait(driver, 60).until(ec.presence_of_element_located((By.ID, 'import-srp__srp-word-0')))
+
+    seed = metamask[metamask_index].split()
+    for j in range(12):
+        driver.find_element(By.ID, f'import-srp__srp-word-{j}').send_keys(seed[j])
+
+    WebDriverWait(driver, 10).until(
+        ec.element_to_be_clickable((By.XPATH, '//button[@data-testid="import-srp-confirm"]'))).click()
+
+    meta_password = ''.join(random.choice(ascii_letters + digits) for j in range(8)) if not config['settings'][
+        'password'] else config['settings']['password']
+
+    WebDriverWait(driver, 20).until(
+        ec.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-new"]'))).send_keys(
+        meta_password)
+    WebDriverWait(driver, 20).until(
+        ec.presence_of_element_located(((By.XPATH, '//input[@data-testid="create-password-confirm"]')))).send_keys(
+        meta_password)
+    WebDriverWait(driver, 20).until(
+        ec.presence_of_element_located((By.XPATH, '//input[@data-testid="create-password-terms"]'))).click()
+
+    WebDriverWait(driver, 20).until(
+        ec.element_to_be_clickable((By.XPATH, '//button[@data-testid="create-password-import"]'))).click()
+
+    while 1:
+        try:
+            sleep(5)
+            driver.find_element(By.XPATH, '//div[@class="loading-overlay"]')
+        except:
+            break
+        else:
+            driver.refresh()
+            continue
+
+    WebDriverWait(driver, 20).until(
+        ec.element_to_be_clickable((By.XPATH, '//button[@data-testid="onboarding-complete-done"]'))).click()
+    WebDriverWait(driver, 20).until(
+        ec.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-next"]'))).click()
+    WebDriverWait(driver, 20).until(
+        ec.element_to_be_clickable((By.XPATH, '//button[@data-testid="pin-extension-done"]'))).click()
+
+
 def import_keplr(driver: webdriver.Chrome, metamask_index):
     extensions = get_exts(driver)
 
@@ -117,10 +177,93 @@ def worker(ws_index, metamask_index):
     driver.switch_to.window(curr)
     driver.get('about:blank')
 
+    import_metamask(driver, metamask_index)
     import_keplr(driver, metamask_index)
 
     driver.get('about:blank')
     bar.next()
+
+
+def bypass():
+    for disk in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']:
+        try:
+            os.listdir(f'{disk}:\.ADSPOWER_GLOBAL')
+        except FileNotFoundError:
+            continue
+        else:
+            adspower_path = f'{disk}:\.ADSPOWER_GLOBAL'
+            break
+    else:
+        return False
+
+    if 'extension' in os.listdir(adspower_path):
+        extension_folders = os.listdir(f'{adspower_path}\\extension')
+
+        extension_changed = False
+
+        for extension in extension_folders:
+            current_extension_folders = os.listdir(f'{adspower_path}\\extension\\{extension}')
+
+            for folder in current_extension_folders:
+                if not os.path.isdir(f'{adspower_path}\\extension\\{extension}\\{folder}'):
+                    continue
+
+                if 'runtime-lavamoat.js' in os.listdir(f'{adspower_path}\\extension\\{extension}\\{folder}'):
+                    lavamoat_path = f'{adspower_path}\\extension\\{extension}\\{folder}\\runtime-lavamoat.js'
+                    with open(lavamoat_path, encoding='utf-8') as file:
+                        text = file.read()
+                        file.close()
+                    with open(lavamoat_path, 'w', encoding='utf-8') as file:
+                        replaced_text = re.sub(r'} = {"scuttleGlobalThis":\{.*}',
+                                               '} = {"scuttleGlobalThis":{"enabled":false,"scuttlerName":"SCUTTLER","exceptions":[]}}',
+                                               text)
+                        file.write(replaced_text)
+                        file.close()
+
+                    extension_changed = True
+
+        if not extension_changed:
+            return False
+
+    if 'ext' in os.listdir(adspower_path):
+        ext_folders = os.listdir(f'{adspower_path}\\ext')
+
+        extension_changed = False
+
+        for extension in ext_folders:
+            if not os.path.isdir(f'{adspower_path}\\ext\\{extension}'):
+                continue
+
+            if 'runtime-lavamoat.js' in os.listdir(f'{adspower_path}\\ext\\{extension}'):
+                lavamoat_path = f'{adspower_path}\\ext\\{extension}\\runtime-lavamoat.js'
+                with open(lavamoat_path, encoding='utf-8') as file:
+                    text = file.read()
+                    file.close()
+                with open(lavamoat_path, 'w', encoding='utf-8') as file:
+                    replaced_text = re.sub(r'} = {"scuttleGlobalThis":\{.*}',
+                                           '} = {"scuttleGlobalThis":{"enabled":false,"scuttlerName":"SCUTTLER","exceptions":[]}}',
+                                           text)
+                    file.write(replaced_text)
+                    file.close()
+                extension_changed = True
+
+        if not extension_changed:
+            return False
+
+    profiles_folders = os.listdir(f'{adspower_path}\\cache')
+
+    for profile_dir in profiles_folders:
+        profile_path = f'{adspower_path}\\cache\\{profile_dir}'
+
+        if 'extensionCenter' in os.listdir(profile_path) and '07de772c049203839ed54e4156de1a89' in os.listdir(f'{profile_path}\\extensionCenter'):
+            extension_path = f'{profile_path}\\extensionCenter\\07de772c049203839ed54e4156de1a89'
+            rmtree(extension_path)
+
+        if 'Default' in os.listdir(profile_path) and 'nkbihfbeogaeaoehlefnkodbefgpgknn' in os.listdir(f'{profile_path}\\Default\\Local Extension settings'):
+            extension_path = f'{profile_path}\\Default\\Local Extension settings\\nkbihfbeogaeaoehlefnkodbefgpgknn'
+            rmtree(extension_path)
+
+    return True
 
 
 def reset_keplr():
@@ -165,6 +308,9 @@ if __name__ == '__main__':
     if int(config['settings']['do_bypass']):
         if not reset_keplr():
             print('Couldn\'t clear Keplr cache')
+            init_exit()
+        if not bypass():
+            print('Couldn\'t bypass metamask')
             init_exit()
 
     sleep(1)

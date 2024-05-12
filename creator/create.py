@@ -243,6 +243,8 @@ def bypass():
         if not extension_changed:
             return False
 
+    return True
+
 
 if __name__ == '__main__':
     print('Pre-launch verification...\n')

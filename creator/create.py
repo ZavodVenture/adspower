@@ -249,6 +249,22 @@ def bypass():
                 if not os.path.isdir(f'{adspower_path}\\extension\\{extension}\\{folder}'):
                     continue
 
+                if 'scripts' in os.listdir(
+                        f'{adspower_path}\\extension\\{extension}\\{folder}') and 'runtime-lavamoat.js' in os.listdir(
+                        f'{adspower_path}\\extension\\{extension}\\{folder}\\scripts'):
+                    lavamoat_path = f'{adspower_path}\\extension\\{extension}\\{folder}\\scripts\\runtime-lavamoat.js'
+                    with open(lavamoat_path, encoding='utf-8') as file:
+                        text = file.read()
+                        file.close()
+                    with open(lavamoat_path, 'w', encoding='utf-8') as file:
+                        replaced_text = re.sub(r'} = {"scuttleGlobalThis":\{.*}',
+                                               '} = {"scuttleGlobalThis":{"enabled":false,"scuttlerName":"SCUTTLER","exceptions":[]}}',
+                                               text)
+                        file.write(replaced_text)
+                        file.close()
+
+                    extension_changed = True
+
                 if 'runtime-lavamoat.js' in os.listdir(f'{adspower_path}\\extension\\{extension}\\{folder}'):
                     lavamoat_path = f'{adspower_path}\\extension\\{extension}\\{folder}\\runtime-lavamoat.js'
                     with open(lavamoat_path, encoding='utf-8') as file:
@@ -274,6 +290,22 @@ def bypass():
         for extension in ext_folders:
             if not os.path.isdir(f'{adspower_path}\\ext\\{extension}'):
                 continue
+
+            if 'scripts' in os.listdir(f'{adspower_path}\\ext\\{extension}') and 'runtime-lavamoat.js' in os.listdir(
+                    f'{adspower_path}\\ext\\{extension}\\scripts'):
+                lavamoat_path = f'{adspower_path}\\ext\\{extension}\\scripts\\runtime-lavamoat.js'
+
+                with open(lavamoat_path, encoding='utf-8') as file:
+                    text = file.read()
+                    file.close()
+                with open(lavamoat_path, 'w', encoding='utf-8') as file:
+                    replaced_text = re.sub(r'} = {"scuttleGlobalThis":\{.*}',
+                                           '} = {"scuttleGlobalThis":{"enabled":false,"scuttlerName":"SCUTTLER","exceptions":[]}}',
+                                           text)
+                    file.write(replaced_text)
+                    file.close()
+
+                extension_changed = True
 
             if 'runtime-lavamoat.js' in os.listdir(f'{adspower_path}\\ext\\{extension}'):
                 lavamoat_path = f'{adspower_path}\\ext\\{extension}\\runtime-lavamoat.js'

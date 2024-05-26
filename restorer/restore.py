@@ -64,7 +64,79 @@ def import_phantom(driver: webdriver.Chrome, metamask_index):
         raise Exception('Phantom extension not found')
 
     driver.get(f'chrome-extension://{ext_id}/popup.html')
-    sleep(1)
+    sleep(2)
+
+    driver.switch_to.window(driver.window_handles[0])
+
+    if 'onboarding' in driver.current_url:
+        WebDriverWait(driver, 15).until(
+            ec.element_to_be_clickable((By.XPATH, '//*[@id="root"]/main/div[2]/div/div[2]/button[2]'))).click()
+        sleep(0.5)
+        WebDriverWait(driver, 15).until(
+            ec.element_to_be_clickable((By.XPATH, '//*[@id="root"]/main/div[2]/div/div[2]'))).click()
+
+        WebDriverWait(driver, 15).until(
+            ec.presence_of_element_located((By.XPATH, '//input[@data-testid="secret-recovery-phrase-word-input-0"]')))
+
+        seed = metamask[metamask_index].split()
+
+        for i in range(12):
+            driver.find_element(By.XPATH, f'//input[@data-testid="secret-recovery-phrase-word-input-{i}"]').send_keys(
+                seed[i])
+
+        WebDriverWait(driver, 15).until(
+            ec.element_to_be_clickable((By.XPATH, '//*[@id="root"]/main/div[2]/form/button'))).click()
+        WebDriverWait(driver, 60).until(
+            ec.element_to_be_clickable((By.XPATH, '//*[@id="root"]/main/div[2]/form/button[2]'))).click()
+
+        meta_password = ''.join(random.choice(ascii_letters + digits) for _ in range(8)) if not config['settings'][
+            'password'] else config['settings']['password']
+
+        WebDriverWait(driver, 15).until(
+            ec.element_to_be_clickable((By.XPATH, '//input[@data-testid="onboarding-form-password-input"]'))).send_keys(
+            meta_password)
+        WebDriverWait(driver, 15).until(ec.element_to_be_clickable(
+            (By.XPATH, '//input[@data-testid="onboarding-form-confirm-password-input"]'))).send_keys(meta_password)
+        sleep(0.5)
+        WebDriverWait(driver, 15).until(
+            ec.presence_of_element_located((By.XPATH, '//*[@id="root"]/main/div[2]/form/div[2]/span/input'))).click()
+        WebDriverWait(driver, 15).until(
+            ec.element_to_be_clickable((By.XPATH, '//*[@id="root"]/main/div[2]/form/button'))).click()
+
+        WebDriverWait(driver, 15).until(
+            ec.element_to_be_clickable((By.XPATH, '//*[@id="root"]/main/div[2]/form/button')))
+
+        driver.get(f'chrome-extension://{ext_id}/popup.html')
+        sleep(0.5)
+
+        while 1:
+            try:
+                WebDriverWait(driver, 2).until(
+                    ec.element_to_be_clickable((By.XPATH, '//div[@data-testid="settings-menu-open-button"]'))).click()
+            except:
+                try:
+                    driver.find_element(By.XPATH, '//button[@data-testid="primary-button"]').click()
+                except:
+                    pass
+                driver.refresh()
+            else:
+                break
+        sleep(0.5)
+        WebDriverWait(driver, 15).until(
+            ec.element_to_be_clickable((By.XPATH, '//div[@data-testid="sidebar_menu-button-settings"]'))).click()
+        sleep(0.5)
+        WebDriverWait(driver, 15).until(
+            ec.element_to_be_clickable((By.XPATH, '//div[@data-testid="settings-item-security-and-privacy"]'))).click()
+        sleep(0.5)
+        WebDriverWait(driver, 15).until(
+            ec.element_to_be_clickable((By.XPATH, '//div[@class="sc-cidDSM jFTnWc"]/div[2]'))).click()
+        sleep(0.5)
+        WebDriverWait(driver, 15).until(
+            ec.element_to_be_clickable((By.XPATH, '//div[@class="sc-cKVNtL dBhqBE"]/div[9]'))).click()
+        sleep(0.5)
+
+        driver.get('about:blank')
+        return
 
     try:
         driver.find_element(By.XPATH, '//input[@data-testid="unlock-form-password-input"]')
@@ -108,6 +180,10 @@ def import_phantom(driver: webdriver.Chrome, metamask_index):
             WebDriverWait(driver, 2).until(
                 ec.element_to_be_clickable((By.XPATH, '//div[@data-testid="settings-menu-open-button"]'))).click()
         except:
+            try:
+                driver.find_element(By.XPATH, '//button[@data-testid="primary-button"]').click()
+            except:
+                pass
             driver.refresh()
         else:
             break
@@ -118,7 +194,7 @@ def import_phantom(driver: webdriver.Chrome, metamask_index):
     sleep(0.5)
     WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, '//div[@class="sc-cidDSM jFTnWc"]/div[2]'))).click()
     sleep(0.5)
-    WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, '//div[@class="sc-icMgfS dcgSON"]/div[9]'))).click()
+    WebDriverWait(driver, 15).until(ec.element_to_be_clickable((By.XPATH, '//div[@class="sc-cKVNtL dBhqBE"]/div[9]'))).click()
     sleep(0.5)
 
     driver.get('about:blank')

@@ -317,10 +317,25 @@ def reset_keplr():
     for profile_dir in profiles_folders:
         profile_path = f'{adspower_path}\\cache\\{profile_dir}'
 
-        if 'Default' in os.listdir(profile_path) and 'dmkamcknogkgcdfhhbddcghachkejeap' in os.listdir(
-                f'{profile_path}\\Default\\Local Extension Settings'):
-            extension_path = f'{profile_path}\\Default\\Local Extension Settings\\dmkamcknogkgcdfhhbddcghachkejeap'
-            rmtree(extension_path)
+        if 'Default' not in os.listdir(profile_path):
+            return False
+
+        default_dirs = os.listdir(f'{profile_path}\\Default\\Local Extension Settings')
+
+        for ext_dir in default_dirs:
+            ext_path = f'{profile_path}\\Default\\Local Extension Settings\\{ext_dir}'
+
+            files = os.listdir(ext_path)
+            for file in files:
+                if '.log' in file:
+                    filename = file
+                    break
+            else:
+                continue
+
+            file_data = open(f'{ext_path}\\{filename}', encoding='ANSI').read()
+            if 'keplr' in file_data:
+                rmtree(ext_path)
 
     return True
 

@@ -111,6 +111,14 @@ def import_phantom(driver: webdriver.Chrome, metamask_index):
 
         while 1:
             try:
+                WebDriverWait(driver, 5).until(
+                    ec.element_to_be_clickable(
+                        (By.XPATH, '//input[@data-testid="unlock-form-password-input"]'))).send_keys(
+                    meta_password)
+                driver.find_element(By.XPATH, '//button[@data-testid="unlock-form-submit-button"]').click()
+            except:
+                pass
+            try:
                 WebDriverWait(driver, 2).until(
                     ec.element_to_be_clickable((By.XPATH, '//div[@data-testid="settings-menu-open-button"]'))).click()
             except:
@@ -176,6 +184,13 @@ def import_phantom(driver: webdriver.Chrome, metamask_index):
     sleep(0.5)
 
     while 1:
+        try:
+            WebDriverWait(driver, 5).until(
+                ec.element_to_be_clickable((By.XPATH, '//input[@data-testid="unlock-form-password-input"]'))).send_keys(
+                meta_password)
+            driver.find_element(By.XPATH, '//button[@data-testid="unlock-form-submit-button"]').click()
+        except:
+            pass
         try:
             WebDriverWait(driver, 2).until(
                 ec.element_to_be_clickable((By.XPATH, '//div[@data-testid="settings-menu-open-button"]'))).click()
@@ -360,7 +375,7 @@ if __name__ == '__main__':
     print('\nProfiles are running. Restoring profiles...\n')
 
     bar = Bar("Restoring profiles...", max=len(profiles))
-    threads = chunks([Thread(target=worker, args=(i, lines[i])) for i in range(len(profiles))], 2)
+    threads = chunks([Thread(target=worker, args=(i, lines[i])) for i in range(len(profiles))], int(config['settings']['threads']))
     for group in threads:
         for thread in group:
             thread.start()

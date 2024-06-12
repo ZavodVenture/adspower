@@ -63,8 +63,16 @@ def worker(ws_index, metamask_index):
 
     WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, 'import-srp__srp-word-0')))
 
+    words = int(config['settings']['words_number'])
+
+    if words != 12:
+        WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="app-content"]/div/div[2]/div/div/div/div[4]/div/div/div[2]'))).click()
+
+        words_list = [12, 15, 18, 21, 24]
+        WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH,f'//*[@id="app-content"]/div/div[2]/div/div/div/div[4]/div/div/div[2]/select/option[{words_list.index(words) + 1}]'))).click()
+
     seed = metamask[metamask_index].split()
-    for j in range(12):
+    for j in range(words):
         driver.find_element(By.ID, f'import-srp__srp-word-{j}').send_keys(seed[j])
 
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@data-testid="import-srp-confirm"]'))).click()

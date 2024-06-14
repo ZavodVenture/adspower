@@ -229,7 +229,7 @@ def bypass():
     for disk in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']:
         try:
             os.listdir(f'{disk}:\.ADSPOWER_GLOBAL')
-        except FileNotFoundError:
+        except:
             continue
         else:
             adspower_path = f'{disk}:\.ADSPOWER_GLOBAL'

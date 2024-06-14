@@ -189,7 +189,7 @@ def bypass():
                  'U', 'V', 'W', 'X', 'Y', 'Z']:
         try:
             os.listdir(f'{disk}:\.ADSPOWER_GLOBAL')
-        except FileNotFoundError:
+        except:
             continue
         else:
             adspower_path = f'{disk}:\.ADSPOWER_GLOBAL'
@@ -304,7 +304,7 @@ def reset_keplr():
                  'U', 'V', 'W', 'X', 'Y', 'Z']:
         try:
             os.listdir(f'{disk}:\.ADSPOWER_GLOBAL')
-        except FileNotFoundError:
+        except:
             continue
         else:
             adspower_path = f'{disk}:\.ADSPOWER_GLOBAL'

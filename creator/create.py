@@ -20,7 +20,7 @@ config = ConfigParser()
 config.read('config.ini')
 profile_numbers = int(config['Settings']['profiles_number'])
 
-API_URl = 'http://localhost:50325/'
+API_URl = f'http://localhost:{config["Settings"]["port"]}/'
 
 
 def init_exit():

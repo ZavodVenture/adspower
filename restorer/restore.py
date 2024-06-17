@@ -343,7 +343,7 @@ def reset_keplr():
 config = ConfigParser()
 config.read('restore.ini')
 
-API_URl = 'http://localhost:50325/'
+API_URl = f'http://localhost:{config["settings"]["port"]}/'
 
 if __name__ == '__main__':
     print('Pre-launch verification...\n')

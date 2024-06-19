@@ -58,6 +58,10 @@ def worker(index):
     else:
         driver.refresh()
 
+    try:
+        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="app-content"]/div/div[3]/div/button'))).click()
+    except:
+        pass
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, '//*[@id="onboarding__terms-checkbox"]'))).click()
     WebDriverWait(driver, 10).until(

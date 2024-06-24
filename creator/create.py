@@ -211,13 +211,17 @@ def worker(index):
     except:
         pass
 
-    WebDriverWait(driver, 60).until_not(ec.number_of_windows_to_be(1))
-    sleep(5)
     windows = driver.window_handles
-    for window in range(len(driver.window_handles) - 1):
-        driver.switch_to.window(windows[window])
+    driver.switch_to.window(windows[0])
+    current = driver.current_window_handle
+    windows.remove(current)
+
+    for window in windows:
+        driver.switch_to.window(window)
         driver.close()
-    driver.switch_to.window(driver.window_handles[0])
+
+    driver.switch_to.window(current)
+    driver.get('about:blank')
 
     import_metamask(driver, index)
 

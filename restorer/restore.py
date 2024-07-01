@@ -171,16 +171,18 @@ def worker(ws_index, metamask_index):
     except:
         pass
 
-    windows = driver.window_handles
-    driver.switch_to.window(windows[0])
-    current = driver.current_window_handle
-    windows.remove(current)
+    if int(config['settings']['close_tabs']):
+        windows = driver.window_handles
+        driver.switch_to.window(windows[0])
+        current = driver.current_window_handle
+        windows.remove(current)
 
-    for window in windows:
-        driver.switch_to.window(window)
-        driver.close()
+        for window in windows:
+            driver.switch_to.window(window)
+            driver.close()
 
-    driver.switch_to.window(current)
+        driver.switch_to.window(current)
+
     driver.get('about:blank')
 
     import_metamask(driver, metamask_index)

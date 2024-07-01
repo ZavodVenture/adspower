@@ -44,11 +44,14 @@ def worker(index):
 
     WebDriverWait(driver, 60).until_not(EC.number_of_windows_to_be(1))
     sleep(5)
-    windows = driver.window_handles
-    for window in range(len(driver.window_handles) - 1):
-        driver.switch_to.window(windows[window])
-        driver.close()
-    driver.switch_to.window(driver.window_handles[0])
+
+    if int(config['Settings']['close_tabs']):
+        windows = driver.window_handles
+        for window in range(len(driver.window_handles) - 1):
+            driver.switch_to.window(windows[window])
+            driver.close()
+        driver.switch_to.window(driver.window_handles[0])
+
     driver.get('chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html')
 
     try:

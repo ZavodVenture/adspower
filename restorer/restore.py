@@ -36,14 +36,15 @@ def worker(ws_index, metamask_index):
     service = Service(executable_path=driver_path)
     driver = webdriver.Chrome(service=service, options=options)
 
-    tabs = driver.window_handles
-    curr = driver.current_window_handle
-    for tab in tabs:
-        if tab == curr:
-            continue
-        driver.switch_to.window(tab)
-        driver.close()
-    driver.switch_to.window(curr)
+    if int(config['settings']['close_tabs']):
+        tabs = driver.window_handles
+        curr = driver.current_window_handle
+        for tab in tabs:
+            if tab == curr:
+                continue
+            driver.switch_to.window(tab)
+            driver.close()
+        driver.switch_to.window(curr)
     driver.get('about:blank')
 
 
